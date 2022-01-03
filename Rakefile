@@ -5,6 +5,7 @@ BUILD_CONFIG = 'tml'
 BUILD_CONFIG_PATH = "mruby/build_config/#{BUILD_CONFIG}.rb"
 MRBC_PATH = 'mruby/bin/mrbc'
 LIB_PATH = 'mruby/build/host/lib/libmruby.a'
+LIBYAML_PATH = 'mruby/build/host/mrbgems/mruby-yaml/libyaml/build/lib/libyaml.a'
 
 task default: :compile_script
 
@@ -42,5 +43,5 @@ directory 'build'
 
 desc 'Compile script'
 task compile_script: ['mainrb.c', LIB_PATH, 'build'] do
-  sh "gcc -std=c99 -I. -Imruby/include runner.c #{LIB_PATH} -lm -o build/tmux-launch"
+  sh "gcc -std=c99 -I. -Imruby/include runner.c #{LIB_PATH} #{LIBYAML_PATH} -lm -o build/tmux-launch"
 end

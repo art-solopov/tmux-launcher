@@ -15,6 +15,7 @@ MRuby::Build.new do |conf|
 
   # include the GEM box
   conf.gembox 'default'
+  conf.gem mgem: 'mruby-yaml'
 
   # C compiler settings
   # conf.cc do |cc|
