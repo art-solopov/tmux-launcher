@@ -26,10 +26,9 @@ end
 file 'mruby/bin' => ['mruby', BUILD_CONFIG_PATH]
 file 'mruby/build' => 'mruby/bin'
 
-file MRBC_PATH => ['mruby', BUILD_CONFIG_PATH] do
+file MRBC_PATH => ['mruby', BUILD_CONFIG_PATH] + Dir.glob('ext/**/*.rb') + Dir.glob('ext/**/*.c') do
   ENV['MRUBY_CONFIG'] = BUILD_CONFIG
-  Dir.chdir 'mruby'
-  sh 'rake'
+  Dir.chdir('mruby') { sh 'rake' }
 end
 
 desc 'Build mruby with our build config'

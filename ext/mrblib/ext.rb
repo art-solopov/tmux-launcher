@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module TmuxLauncher
-  Result = Struct.new(:status, :err_io)
+  Result = Struct.new(:pid, :status, :err_io)
 
   class << self
     private
