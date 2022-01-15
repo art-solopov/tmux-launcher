@@ -3,15 +3,25 @@
 module TmuxLauncher
   Result = Struct.new(:pid, :status, :err_io)
 
-  class << self
-    private
+  class TmuxError < StandardError
+  end
 
-    def load_config
-      YAML.load File.read(config_path)
+  class << self
+    def new_session(name, path)
+      Dir.chdir(path) do
+        run_tmux_command %W[new -d -s #{name}]
+      end
     end
 
-    def config_path
-      File.join(ENV['HOME'], 'tmux-launcher.yaml')
+    def set_option(session, name, value)
+      run_tmux_command %W[set-option -t #{session} #{name} #{value}]
+    end
+
+    private
+
+    def run_tmux_command(args)
+      cmd_status = _run_tmux_command(*args)
+      raise TmuxError, "Tmux error: #{cmd_status.err_io.read}" unless cmd_status.status.zero?
     end
   end
 end

@@ -5,4 +5,5 @@ MRuby::Gem::Specification.new('tmux-launcher-ext') do |spec|
   spec.author = 'Artemiy Solopov'
 
   spec.add_dependency 'mruby-io'
+  spec.add_dependency 'mruby-dir'
 end
