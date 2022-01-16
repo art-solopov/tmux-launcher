@@ -17,6 +17,7 @@ MRuby::Build.new do |conf|
   conf.gembox 'default'
   conf.gem mgem: 'mruby-yaml'
   conf.gem mgem: 'mruby-dir'
+  conf.gem mgem: 'mruby-env'
   conf.gem '../ext'
 
   # C compiler settings

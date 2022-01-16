@@ -41,6 +41,6 @@ end
 directory 'build'
 
 desc 'Compile script'
-task compile_script: ['mainrb.c', LIB_PATH, 'build'] do
+task compile_script: ['mainrb.c', 'runner.c', LIB_PATH, 'build'] do
   sh "gcc -std=c99 -I. -Imruby/include runner.c #{LIB_PATH} #{LIBYAML_PATH} -lm -o build/tmux-launch"
 end
