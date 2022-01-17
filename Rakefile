@@ -4,7 +4,7 @@ MRUBY_URL = 'https://github.com/mruby/mruby/archive/3.0.0.zip'
 BUILD_CONFIG = 'tml'
 BUILD_CONFIG_PATH = "mruby/build_config/#{BUILD_CONFIG}.rb"
 MRBC_PATH = 'mruby/bin/mrbc'
-LIB_PATH = 'mruby/build/host/lib/libmruby.a'
+MRUBY_CONFIG_PATH = 'mruby/bin/mruby-config'
 LIBYAML_PATH = 'mruby/build/host/mrbgems/mruby-yaml/libyaml/build/lib/libyaml.a'
 
 task default: :compile_script
@@ -41,6 +41,10 @@ end
 directory 'build'
 
 desc 'Compile script'
-task compile_script: ['mainrb.c', 'runner.c', LIB_PATH, 'build'] do
-  sh "gcc -std=c99 -I. -Imruby/include runner.c #{LIB_PATH} #{LIBYAML_PATH} -lm -o build/tmux-launch"
+task compile_script: ['mainrb.c', 'runner.c', 'build'] + Dir.glob('mruby/build/host/**/*.a') do
+  cflags = `#{MRUBY_CONFIG_PATH} --cflags`.strip
+  ldflags = `#{MRUBY_CONFIG_PATH} --ldflags`.strip
+  libs = `#{MRUBY_CONFIG_PATH} --libs`.strip
+  # sh "gcc -std=c99 -I. -Imruby/include runner.c #{LIB_PATH} #{LIBYAML_PATH} -lm -o build/tmux-launch"
+  sh "gcc #{cflags} -I. runner.c #{ldflags} #{libs} -o build/tmux-launch"
 end
