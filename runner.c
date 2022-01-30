@@ -1,3 +1,4 @@
+#include <unistd.h>
 #include <mruby.h>
 #include <mruby/irep.h>
 #include <mruby/array.h>
@@ -20,10 +21,11 @@ main(int argc, char ** argv)
 	for(i = 0; i < argc; i++) {
 		mrb_ary_push(mrb, rb_argv, mrb_str_new_cstr(mrb, argv[i]));
 	}
-
-	struct RClass* mod = mrb_module_get(mrb, "TmuxLauncher");
-	mrb_funcall(mrb, mrb_obj_value(mod), "call", 1, rb_argv);
+	mrb_define_const(mrb, mrb->kernel_module, "ARGV", rb_argv);
+	mrb_define_const(mrb, mrb->kernel_module, "CWD", mrb_str_new_cstr(mrb, getcwd(NULL, 0)));
+	mrb_value rbr = mrb_load_string(mrb, "Main.call");
+	mrb_int result = mrb_int(mrb, rbr);
 
 	mrb_close(mrb);
-	return 0;
+	return result;
 }
