@@ -64,13 +64,14 @@ run_tmux_command(mrb_state *mrb, mrb_value self) {
 	return mrb_nil_value();
 }
 
-static void
+static mrb_value
 run_tmux_attach(mrb_state *mrb, mrb_value self) {
-	const char * session_name;
+	const char * session_name = NULL;
 
-	mrb_get_args(mrb, "z", session_name);
+	mrb_get_args(mrb, "z", &session_name);
 
 	execlp("tmux", "tmux", "a", "-t", session_name, NULL);
+	return mrb_nil_value();
 }
 
 void
@@ -82,7 +83,7 @@ mrb_tmux_launcher_ext_gem_init(mrb_state *mrb) {
 			MRB_ARGS_REST()
 			);
 	mrb_define_class_method(
-			mrb, mod, "tmux_attach", run_tmux_attach,
+			mrb, mod, "attach_session", run_tmux_attach,
 			MRB_ARGS_REQ(1)
 			);
 }

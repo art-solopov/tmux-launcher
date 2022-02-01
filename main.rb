@@ -28,6 +28,7 @@ class Main
     @session = @argv.size > 1 ? @argv[1] : session_name_from_cwd
     launch_session
     set_session_options
+    attach_session
     0
   rescue ConfigLoadError
     puts "File #{config_file} not found or not valid YAML"
@@ -63,6 +64,10 @@ class Main
     options.each do |name, value|
       TmuxLauncher.set_option @session, name, value
     end
+  end
+
+  def attach_session
+    TmuxLauncher.attach_session @session
   end
 
   def session_name_from_cwd
