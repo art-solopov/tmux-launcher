@@ -27,6 +27,7 @@ class Main
 
     @session = @argv.size > 1 ? @argv[1] : session_name_from_cwd
     launch_session
+    set_session_options
     0
   rescue ConfigLoadError
     puts "File #{config_file} not found or not valid YAML"
@@ -53,6 +54,15 @@ class Main
     TmuxLauncher.new_session(@session, session_config.fetch('path'))
   rescue KeyError
     raise SessionConfigInvalidError
+  end
+
+  def set_session_options
+    options = session_config['options']
+    return if options.to_a.empty?
+
+    options.each do |name, value|
+      TmuxLauncher.set_option @session, name, value
+    end
   end
 
   def session_name_from_cwd
