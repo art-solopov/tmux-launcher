@@ -22,6 +22,11 @@ Then, when you run `tmux-launcher session_name`, it'll create a new tmux session
 
 It should run on any Unix-like system that supports mruby, understands `fork`, `execvp`, `execlp` and `pipe`.
 
+# Building
+
+You'll need gcc and ruby for building. Clone the repository and run `rake`. It should install mruby for you,
+link the build configuration and build everything.
+
 # Contributing
 
 Contributions welcome! Just don't be an ass to other contributors.
