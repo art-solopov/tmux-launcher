@@ -14,7 +14,7 @@ task default: :compile_script
 directory "build"
 directory "pkg"
 
-file "#{MRUBY_PATH}" => "pkg" do
+file MRUBY_PATH => "pkg" do
   sh "wget -c -O #{PKG_PATH}/mruby.zip #{MRUBY_URL}"
   sh "unzip #{PKG_PATH}/mruby.zip -d #{PKG_PATH}"
   dirname = Dir["#{PKG_PATH}/mruby-*"].first
@@ -22,18 +22,16 @@ file "#{MRUBY_PATH}" => "pkg" do
   FileUtils.rm("#{PKG_PATH}/mruby.zip")
 end
 
-file "#{BUILD_CONFIG_PATH}" => [MRUBY_PATH, 'build_config.rb'] do |t|
+file BUILD_CONFIG_PATH => [MRUBY_PATH, 'build_config.rb'] do |t|
   FileUtils.cp 'build_config.rb', t.name
 end
 
 file "#{MRUBY_PATH}/bin" => [MRUBY_PATH, BUILD_CONFIG_PATH]
 file "#{MRUBY_PATH}/build" => "#{MRUBY_PATH}/bin"
 
-file "#{MRBC_PATH}" => [MRUBY_PATH, BUILD_CONFIG_PATH] + Dir.glob('ext/**/*.rb') + Dir.glob('ext/**/*.c') do
+file MRBC_PATH => [MRUBY_PATH, BUILD_CONFIG_PATH] + Dir.glob('ext/**/*.rb') + Dir.glob('ext/**/*.c') do
   ENV['MRUBY_CONFIG'] = BUILD_CONFIG
-  puts "in here #{MRUBY_PATH}"
   Dir.chdir(MRUBY_PATH) { sh 'rake' }
-  puts "out here"
 end
 
 desc 'Build mruby with our build config'
