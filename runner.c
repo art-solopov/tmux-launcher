@@ -3,7 +3,7 @@
 #include <mruby/irep.h>
 #include <mruby/array.h>
 #include <mruby/value.h>
-#include <mainrb.c>
+#include <pkg/mainrb.c>
 
 int
 main(int argc, char ** argv)

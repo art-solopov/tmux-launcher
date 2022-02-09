@@ -1,47 +1,50 @@
 # frozen_string_literal: true
 
 MRUBY_URL = 'https://github.com/mruby/mruby/archive/3.0.0.zip'
+PKG_PATH = 'pkg'
 BUILD_CONFIG = 'tml'
-BUILD_CONFIG_PATH = "mruby/build_config/#{BUILD_CONFIG}.rb"
-MRBC_PATH = 'mruby/bin/mrbc'
-MRUBY_CONFIG_PATH = 'mruby/bin/mruby-config'
-LIBYAML_PATH = 'mruby/build/host/mrbgems/mruby-yaml/libyaml/build/lib/libyaml.a'
+MRUBY_PATH = "#{PKG_PATH}/mruby"
+BUILD_CONFIG_PATH = "#{MRUBY_PATH}/build_config/#{BUILD_CONFIG}.rb"
+MRBC_PATH = "#{MRUBY_PATH}/bin/mrbc"
+MRUBY_CONFIG_PATH = "#{MRUBY_PATH}/bin/mruby-config"
+LIBYAML_PATH = "#{MRUBY_PATH}/build/host/mrbgems/mruby-yaml/libyaml/build/lib/libyaml.a"
 
 task default: :compile_script
 
-file 'mruby.zip' do
-  sh "wget -c -O mruby.zip #{MRUBY_URL}"
+directory "build"
+directory "pkg"
+
+file "#{MRUBY_PATH}" => "pkg" do
+  sh "wget -c -O #{PKG_PATH}/mruby.zip #{MRUBY_URL}"
+  sh "unzip #{PKG_PATH}/mruby.zip -d #{PKG_PATH}"
+  dirname = Dir["#{PKG_PATH}/mruby-*"].first
+  FileUtils.mv dirname, "#{PKG_PATH}/mruby"
+  FileUtils.rm("#{PKG_PATH}/mruby.zip")
 end
 
-file 'mruby' => 'mruby.zip' do
-  sh 'unzip mruby.zip'
-  dirname = Dir['mruby*'].find { File.directory?(_1) }
-  FileUtils.mv dirname, 'mruby'
-end
-
-file BUILD_CONFIG_PATH => ['mruby', 'build_config.rb'] do |t|
+file "#{BUILD_CONFIG_PATH}" => [MRUBY_PATH, 'build_config.rb'] do |t|
   FileUtils.cp 'build_config.rb', t.name
 end
 
-file 'mruby/bin' => ['mruby', BUILD_CONFIG_PATH]
-file 'mruby/build' => 'mruby/bin'
+file "#{MRUBY_PATH}/bin" => [MRUBY_PATH, BUILD_CONFIG_PATH]
+file "#{MRUBY_PATH}/build" => "#{MRUBY_PATH}/bin"
 
-file MRBC_PATH => ['mruby', BUILD_CONFIG_PATH] + Dir.glob('ext/**/*.rb') + Dir.glob('ext/**/*.c') do
+file "#{MRBC_PATH}" => [MRUBY_PATH, BUILD_CONFIG_PATH] + Dir.glob('ext/**/*.rb') + Dir.glob('ext/**/*.c') do
   ENV['MRUBY_CONFIG'] = BUILD_CONFIG
-  Dir.chdir('mruby') { sh 'rake' }
+  puts "in here #{MRUBY_PATH}"
+  Dir.chdir(MRUBY_PATH) { sh 'rake' }
+  puts "out here"
 end
 
 desc 'Build mruby with our build config'
 task mruby_build: MRBC_PATH
 
-file 'mainrb.c' => ['main.rb', MRBC_PATH] do |t|
+file "#{PKG_PATH}/mainrb.c" => ['main.rb', MRBC_PATH] do |t|
   sh "#{MRBC_PATH} -Bmainrb -o #{t.name} main.rb"
 end
 
-directory 'build'
-
 desc 'Compile script'
-task compile_script: ['mainrb.c', 'runner.c', 'build'] + Dir.glob('mruby/build/host/**/*.a') do
+task compile_script: ["#{PKG_PATH}/mainrb.c", 'runner.c', 'build'] + Dir.glob("#{MRUBY_PATH}/build/host/**/*.a") do
   cflags = `#{MRUBY_CONFIG_PATH} --cflags`.strip
   ldflags = `#{MRUBY_CONFIG_PATH} --ldflags`.strip
   libs = `#{MRUBY_CONFIG_PATH} --libs`.strip
